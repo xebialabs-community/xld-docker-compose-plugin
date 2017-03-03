@@ -1,0 +1,11 @@
+build/
+.gradle/
+*.iml
+*.ipr
+*.iws
+PetDocker/dar/deployit-manifest.xml
+PetDocker/PetDocker-*.dar
+Environments/
+Dockerfiles/
+out/
+.idea/
