@@ -5,12 +5,14 @@
  */
 package ext.deployit.community.importer.docker;
 
+import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
 import org.hamcrest.core.IsEqual;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 
+import static ext.deployit.community.importer.docker.BaseDockerConfigurationItem.translateToPropertyPlaceholder;
 import static org.junit.Assert.*;
 
 
@@ -29,7 +31,7 @@ public class DockerComposeDescriptorTest {
             DockerComposeImageItem image = (DockerComposeImageItem) i;
             if (image.getName().equals("haproxy")) {
                 assertEquals("eeacms/haproxy", image.getImage());
-                assertEquals("docker.Image", image.getType());
+                assertEquals("docker.ContainerSpec", image.getType());
                 assertEquals(2, image.getPorts().size());
                 assertEquals("80:80", image.getPorts().get(0));
                 assertEquals("1936:1936", image.getPorts().get(1));
@@ -89,7 +91,7 @@ public class DockerComposeDescriptorTest {
         assertEquals(8, images.size());
 
         final DockerComposeImageItem votingAppImage = (DockerComposeImageItem) descriptor.getItemByName("voting-app");
-        assertEquals("docker.Image", votingAppImage.getType());
+        assertEquals("docker.ContainerSpec", votingAppImage.getType());
         assertEquals("voting-app:4", votingAppImage.getImage());
         assertEquals(1, votingAppImage.getPorts().size());
         assertEquals("5000:80", votingAppImage.getPorts().get(0));
@@ -124,22 +126,22 @@ public class DockerComposeDescriptorTest {
 
     @Test
     public void testTranslateToPropertyPlaceholder() throws Exception {
-        assertThat("ABC", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("ABC")));
-        assertThat("{{ABC}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("$ABC")));
-        assertThat("{{ABC}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("${ABC}")));
-        assertThat("{{ABC_HOST}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("$ABC_HOST")));
-        assertThat("{{ABC_HOST.A}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("$ABC_HOST.A")));
+        assertThat("ABC", new IsEqual(translateToPropertyPlaceholder("ABC")));
+        assertThat("{{ABC}}", new IsEqual(translateToPropertyPlaceholder("$ABC")));
+        assertThat("{{ABC}}", new IsEqual(translateToPropertyPlaceholder("${ABC}")));
+        assertThat("{{ABC_HOST}}", new IsEqual(translateToPropertyPlaceholder("$ABC_HOST")));
+        assertThat("{{ABC_HOST.A}}", new IsEqual(translateToPropertyPlaceholder("$ABC_HOST.A")));
 
-        assertThat("{{ABC_HOST}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("${ABC_HOST}")));
-        assertThat("{{ABC_HOST_A}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("${ABC_HOST_A}")));
+        assertThat("{{ABC_HOST}}", new IsEqual(translateToPropertyPlaceholder("${ABC_HOST}")));
+        assertThat("{{ABC_HOST_A}}", new IsEqual(translateToPropertyPlaceholder("${ABC_HOST_A}")));
 
-        assertThat("{{P1}}:{{P2}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("$P1:$P2")));
-        assertThat("{{P1}}:{{P2}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("${P1}:${P2}")));
-        assertThat("{{P1}}:{{P2}}", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("${P1}:$P2")));
+        assertThat("{{P1}}:{{P2}}", new IsEqual(translateToPropertyPlaceholder("$P1:$P2")));
+        assertThat("{{P1}}:{{P2}}", new IsEqual(translateToPropertyPlaceholder("${P1}:${P2}")));
+        assertThat("{{P1}}:{{P2}}", new IsEqual(translateToPropertyPlaceholder("${P1}:$P2")));
 
-        assertThat("$$ABC", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("$$ABC")));
+        assertThat("$$ABC", new IsEqual(translateToPropertyPlaceholder("$$ABC")));
 
-        assertThat("ABC{{P1}}EDF:GHI{{P2}}JKL", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("ABC${P1}EDF:GHI${P2}JKL")));
+        assertThat("ABC{{P1}}EDF:GHI{{P2}}JKL", new IsEqual(translateToPropertyPlaceholder("ABC${P1}EDF:GHI${P2}JKL")));
     }
 
 
@@ -159,6 +161,19 @@ public class DockerComposeDescriptorTest {
 
         assertEquals(1, image.getEnvironments().size());
         assertEquals("on-node-failure", image.getEnvironments().get("reschedule"));
+
+
+        final DockerComposeImageItem cataloguedb = (DockerComposeImageItem) descriptor.getItemByName("catalogue-db");
+        assertEquals("weaveworksdemos/catalogue-db", cataloguedb.getImage());
+        assertEquals("", cataloguedb.getCommand());
+        assertEquals(4, cataloguedb.getEnvironments().size());
+        assertEquals("${MYSQL_ROOT_PASSWORD}",cataloguedb.getEnvironments().get("MYSQL_ROOT_PASSWORD"));
+        assertThat("{{MYSQL_ROOT_PASSWORD}}", new IsEqual(translateToPropertyPlaceholder("${MYSQL_ROOT_PASSWORD}")));
+
+        final DockerComposeImageItem usersim = (DockerComposeImageItem) descriptor.getItemByName("user-sim");
+        assertEquals("weaveworksdemos/load-test", usersim.getImage());
+        assertEquals("-d 60 -r 200 -c 2 -h front-end", usersim.getCommand());
+
     }
 
     private DockerConfigurationItem getImageByName(List<DockerConfigurationItem> images, String imageName) {

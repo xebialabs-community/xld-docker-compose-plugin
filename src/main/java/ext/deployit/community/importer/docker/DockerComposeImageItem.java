@@ -5,7 +5,6 @@
  */
 package ext.deployit.community.importer.docker;
 
-import com.google.common.base.Function;
 import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
 
 import java.util.Collections;
@@ -20,7 +19,7 @@ import static com.google.common.collect.Sets.newHashSet;
 public class DockerComposeImageItem extends BaseDockerConfigurationItem {
 
     public DockerComposeImageItem(final String name, final Map properties) {
-        super("docker.Image", name, properties);
+        super("docker.ContainerSpec", name, properties);
     }
 
     public String getImage() {
@@ -50,7 +49,7 @@ public class DockerComposeImageItem extends BaseDockerConfigurationItem {
         }
         if (properties.get("environment") instanceof List) {
             List<String> environment = (List) properties.get("environment");
-            Map<String, String> env = new HashMap<String, String>();
+            Map<String, String> env = new HashMap<>();
             for (String line : environment) {
                 if (line.contains("=")) {
                     String[] split = line.split("=");
@@ -83,59 +82,51 @@ public class DockerComposeImageItem extends BaseDockerConfigurationItem {
         DockerComposeImageItem item = this;
         final String imageId = ci.getId();
         ci.setProperty("image", translateToPropertyPlaceholder(item.getImage()));
-        ci.setProperty("ports", newHashSet(transform(item.getPorts(), new Function<String, ConfigurationItem>() {
-            @Override
-            public ConfigurationItem apply(final String s) {
-                final String id = String.format("%s/%s", imageId, toCiName(s));
-                ConfigurationItem ci = service.newCI("docker.PortSpec", id);
-                ci.setProperty("hostPort", translateToPropertyPlaceholder(s.split(":")[0]));
-                ci.setProperty("containerPort", translateToPropertyPlaceholder(s.split(":")[1]));
-                return ci;
-            }
+        ci.setProperty("command", translateToPropertyPlaceholder(item.getCommand()));
+        ci.setProperty("portBindings", newArrayList(transform(item.getPorts(), s -> {
+            final String id1 = String.format("%s/%s", imageId, toCiName(s));
+            ConfigurationItem ci1 = service.newCI("docker.PortSpec", id1);
+            ci1.setProperty("hostPort", translateToPropertyPlaceholder(s.split(":")[0]));
+            ci1.setProperty("containerPort", translateToPropertyPlaceholder(s.split(":")[1]));
+            return ci1;
         })));
-        ci.setProperty("links", newHashSet(transform(item.getLinks(), new Function<String, ConfigurationItem>() {
-            @Override
-            public ConfigurationItem apply(final String s) {
-                if (s.contains(":")) {
-                    final String id = String.format("%s/%s", imageId, s.split(":")[0]);
-                    ConfigurationItem ci = service.newCI("docker.LinkSpec", id);
-                    ci.setProperty("alias", translateToPropertyPlaceholder(s.split(":")[1]));
-                    return ci;
-                } else {
-                    final String id = String.format("%s/%s", imageId, toCiName(s));
-                    ConfigurationItem ci = service.newCI("docker.LinkSpec", id);
-                    ci.setProperty("alias", translateToPropertyPlaceholder(s));
-                    return ci;
-                }
+
+        Map<String, String> links = new HashMap<String, String>();
+        for (String s : item.getLinks()) {
+            if (s.contains(":")) {
+                links.put(s.split(":")[0].trim(), s.split(":")[1].trim());
+            } else {
+                links.put(s, s);
             }
-        })));
-        ci.setProperty("variables", newHashSet(transform(newArrayList(item.getEnvironments().entrySet()), new Function<Map.Entry<String, String>, ConfigurationItem>() {
-            @Override
-            public ConfigurationItem apply(final Map.Entry<String, String> s) {
-                final String id = String.format("%s/%s", imageId, toCiName(s.getKey()));
-                ConfigurationItem ci = service.newCI("docker.EnvironmentVariableSpec", id);
-                ci.setProperty("value", translateToPropertyPlaceholder(s.getValue()));
-                return ci;
-            }
-        })));
-        ci.setProperty("volumes", newHashSet(transform(item.getVolumes(), new Function<String, ConfigurationItem>() {
-            @Override
-            public ConfigurationItem apply(final String s) {
-                if (s.contains(":")) {
-                    final String[] split = s.split(":");
-                    String name = translateToPropertyPlaceholder(split[0].replace('/', '_'));
-                    final String id = String.format("%s/%s", imageId, name);
-                    ConfigurationItem ci = service.newCI("docker.VolumeSpec", id);
-                    ci.setProperty("source", translateToPropertyPlaceholder(split[0]));
-                    ci.setProperty("destination", translateToPropertyPlaceholder(split[1]));
-                    return ci;
-                } else {
-                    throw new RuntimeException("Cannot convert to VolumeSpec " + s);
-                }
+
+        }
+        ci.setProperty("links", links);
+
+        Map<String,String> tmap = new HashMap<>();
+        for (Map.Entry<String, String> e : item.getEnvironments().entrySet()) {
+            tmap.put(e.getKey(), translateToPropertyPlaceholder(e.getValue()));
+        }
+        ci.setProperty("environment", tmap);
+
+        ci.setProperty("volumeBindings", newHashSet(transform(item.getVolumes(), s -> {
+            if (s.contains(":")) {
+                final String[] split = s.split(":");
+                String name = translateToPropertyPlaceholder(split[0].replace('/', '_'));
+                final String id12 = String.format("%s/%s", imageId, name);
+                ConfigurationItem ci12 = service.newCI("docker.MountedVolumeSpec", id12);
+                ci12.setProperty("source", translateToPropertyPlaceholder(split[0]));
+                ci12.setProperty("destination", translateToPropertyPlaceholder(split[1]));
+                return ci12;
+            } else {
+                throw new RuntimeException("Cannot convert to VolumeSpec " + s);
             }
         })));
 
         return ci;
 
+    }
+
+    public String getCommand() {
+        return (String) (properties.containsKey("command") ? properties.get("command") : "");
     }
 }

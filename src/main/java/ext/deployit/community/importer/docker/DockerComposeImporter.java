@@ -44,6 +44,7 @@ public class DockerComposeImporter implements ListableImporter {
         final PackageInfo packageInfo = new PackageInfo(source);
         packageInfo.setApplicationName(source.getFile().getName().replace(".yaml", "").replace(".yml", ""));
         packageInfo.setApplicationVersion("V" + System.currentTimeMillis());
+        packageInfo.setApplicationRoot("Applications");
         context.setAttribute("temporaryFiles", Lists.<TFile>newArrayList());
         return packageInfo;
     }
