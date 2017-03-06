@@ -5,14 +5,13 @@
  */
 package ext.deployit.community.importer.docker;
 
-import java.io.File;
-import java.util.List;
 import org.hamcrest.core.IsEqual;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import java.io.File;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 
 public class DockerComposeDescriptorTest {
@@ -141,6 +140,33 @@ public class DockerComposeDescriptorTest {
         assertThat("$$ABC", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("$$ABC")));
 
         assertThat("ABC{{P1}}EDF:GHI{{P2}}JKL", new IsEqual(BaseDockerConfigurationItem.translateToPropertyPlaceholder("ABC${P1}EDF:GHI${P2}JKL")));
+    }
+
+
+    @org.junit.Test
+    public void testProcessTest4() throws Exception {
+
+        final File yamlFile = new File("src/test/resources/docker-compose-msa.yml");
+        assertTrue(yamlFile.exists());
+        DockerComposeDescriptor descriptor = new DockerComposeDescriptor(yamlFile);
+        final List<DockerConfigurationItem> images = descriptor.getItems();
+        assertEquals(13, images.size());
+
+        final DockerComposeImageItem image = (DockerComposeImageItem) descriptor.getItemByName("front-end");
+        assertEquals("weaveworksdemos/front-end", image.getImage());
+        assertEquals(1, image.getPorts().size());
+        assertEquals("80:8079", image.getPorts().get(0));
+
+        assertEquals(1, image.getEnvironments().size());
+        assertEquals("on-node-failure", image.getEnvironments().get("reschedule"));
+    }
+
+    private DockerConfigurationItem getImageByName(List<DockerConfigurationItem> images, String imageName) {
+        for (DockerConfigurationItem image : images) {
+            if (image.getName().equals(imageName))
+                return image;
+        }
+        throw new RuntimeException("Image Not found " + imageName);
     }
 
 

@@ -5,12 +5,13 @@
  */
 package ext.deployit.community.importer.docker;
 
+import com.google.common.base.Function;
+import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
+
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.google.common.base.Function;
-
-import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
@@ -40,7 +41,27 @@ public class DockerComposeImageItem extends BaseDockerConfigurationItem {
     }
 
     public Map<String, String> getEnvironments() {
-        return (Map<String, String>) (properties.containsKey("environment") ? properties.get("environment") : Collections.emptyMap());
+        if (!properties.containsKey("environment"))
+            return Collections.emptyMap();
+
+        if (properties.get("environment") instanceof Map) {
+            Map environment = (Map) properties.get("environment");
+            return environment;
+        }
+        if (properties.get("environment") instanceof List) {
+            List<String> environment = (List) properties.get("environment");
+            Map<String, String> env = new HashMap<String, String>();
+            for (String line : environment) {
+                if (line.contains("=")) {
+                    String[] split = line.split("=");
+                    env.put(split[0].trim(), split[1].trim());
+                }
+
+            }
+            return env;
+        }
+
+        throw new RuntimeException("Shoud not be there " + properties.get("environment"));
     }
 
     public List<String> getVolumes() {
