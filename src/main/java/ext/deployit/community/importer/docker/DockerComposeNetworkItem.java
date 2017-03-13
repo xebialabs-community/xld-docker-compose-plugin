@@ -18,6 +18,7 @@ public class DockerComposeNetworkItem extends BaseDockerConfigurationItem {
     @Override
     public ConfigurationItem toConfigurationItem(String id, RepositoryService service) {
         ConfigurationItem ci = service.newCI(getType(), id);
+        ci.setProperty("driver", properties.get("driver"));
         return ci;
     }
 }

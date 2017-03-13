@@ -5,7 +5,6 @@
  */
 package ext.deployit.community.importer.docker;
 
-import com.xebialabs.deployit.plugin.api.udm.ConfigurationItem;
 import org.hamcrest.core.IsEqual;
 import org.junit.Test;
 
@@ -152,7 +151,7 @@ public class DockerComposeDescriptorTest {
         assertTrue(yamlFile.exists());
         DockerComposeDescriptor descriptor = new DockerComposeDescriptor(yamlFile);
         final List<DockerConfigurationItem> images = descriptor.getItems();
-        assertEquals(13, images.size());
+        assertEquals(14, images.size());
 
         final DockerComposeImageItem image = (DockerComposeImageItem) descriptor.getItemByName("front-end");
         assertEquals("weaveworksdemos/front-end", image.getImage());
@@ -167,12 +166,15 @@ public class DockerComposeDescriptorTest {
         assertEquals("weaveworksdemos/catalogue-db", cataloguedb.getImage());
         assertEquals("", cataloguedb.getCommand());
         assertEquals(4, cataloguedb.getEnvironments().size());
-        assertEquals("${MYSQL_ROOT_PASSWORD}",cataloguedb.getEnvironments().get("MYSQL_ROOT_PASSWORD"));
+        assertEquals("${MYSQL_ROOT_PASSWORD}", cataloguedb.getEnvironments().get("MYSQL_ROOT_PASSWORD"));
         assertThat("{{MYSQL_ROOT_PASSWORD}}", new IsEqual(translateToPropertyPlaceholder("${MYSQL_ROOT_PASSWORD}")));
 
         final DockerComposeImageItem usersim = (DockerComposeImageItem) descriptor.getItemByName("user-sim");
         assertEquals("weaveworksdemos/load-test", usersim.getImage());
         assertEquals("-d 60 -r 200 -c 2 -h front-end", usersim.getCommand());
+
+        final DockerComposeNetworkItem DockerComposeNetworkItem = (DockerComposeNetworkItem) descriptor.getItemByName("docker-compose-msa.yml");
+        assertEquals("docker-compose-msa.yml", DockerComposeNetworkItem.getName());
 
     }
 

@@ -6,25 +6,29 @@
 package ext.deployit.community.importer.docker;
 
 
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.esotericsoftware.yamlbeans.YamlReader;
-import com.google.common.collect.Lists;
 
 public class DockerComposeDescriptor {
 
     private final File yamlFile;
     private List<DockerConfigurationItem> items;
+    private final DockerComposeNetworkItem defaultNetwork;
 
     public DockerComposeDescriptor(final File yamlFile) {
         this.yamlFile = yamlFile;
         this.items = Lists.newArrayList();
+        this.defaultNetwork = getDefaultNetwork();
         process();
     }
 
@@ -35,10 +39,15 @@ public class DockerComposeDescriptor {
             Map items = (Map) reader.read();
             //System.out.println(items);
             if (items.containsKey("version") && items.get("version").equals("2")) {
+
                 if (items.containsKey("services")) {
                     final Map services = (Map) items.get("services");
                     for (Object o : services.keySet()) {
-                        this.items.add(new DockerComposeImageItem(o.toString(), toMap(services.get(o))));
+                        if (items.containsKey("networks")) {
+                            this.items.add(new DockerComposeImageItem(o.toString(), toMap(services.get(o))));
+                        } else {
+                            this.items.add(new DockerComposeImageWithDefaultNetworkItem(o.toString(), toMap(services.get(o)), defaultNetwork));
+                        }
                     }
                 }
                 if (items.containsKey("volumes")) {
@@ -52,6 +61,8 @@ public class DockerComposeDescriptor {
                     for (Object o : networks.keySet()) {
                         this.items.add(new DockerComposeNetworkItem(o.toString(), toMap(networks.get(o))));
                     }
+                } else {
+                    this.items.add(this.defaultNetwork);
                 }
             } else {
                 for (Object o : items.keySet()) {
@@ -71,6 +82,14 @@ public class DockerComposeDescriptor {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    private DockerComposeNetworkItem getDefaultNetwork() {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("driver", "overlay");
+        DockerComposeNetworkItem defaultNetwork = new DockerComposeNetworkItem(yamlFile.getName(), properties);
+        return defaultNetwork;
     }
 
     private Map toMap(Object o) {
