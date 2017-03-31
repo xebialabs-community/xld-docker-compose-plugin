@@ -17,7 +17,7 @@ Place the plugin XLDP file into your `SERVER_HOME/plugins` directory.
 Dependencies:
 
 * XL Deploy 6.0+
-* XL Deploy Docker plugin 6.1.0+
+* XL Deploy Docker plugin 6.2.0+
 
 # Sample Applications #
 
