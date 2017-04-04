@@ -5,9 +5,6 @@
     FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 
 -->
-<#include "/docker/setup-docker.ftl">
-<#list deployed.placeholders?keys as k>
-export ${k}=${deployed.placeholders[k]}
-</#list>
+<#include "/docker-compose/setup-docker.ftl">
 
 docker-compose --file ${composed.file.path} --project-name ${application} up <#if (deployed.forceRecreate)>--force-recreate</#if> --no-color --no-build -d

@@ -5,6 +5,6 @@
     FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 
 -->
-<#include "/docker/setup-docker.ftl">
+<#include "/docker-compose/setup-docker.ftl">
 
 docker-compose --file ${composed.file.path} --project-name ${application} logs --no-color

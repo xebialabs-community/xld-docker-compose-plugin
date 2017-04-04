@@ -3,7 +3,7 @@ plugins {
   id "com.xebialabs.xldp" version "1.0.5"
 }
 
-version = '6.0.2'
+version = '6.2.0-SNAPSHOT'
 
 
 def apiVersion = '2016.2.2'
@@ -30,10 +30,15 @@ dependencies {
   compile "com.xebialabs.deployit:engine-spi:$apiVersion"
   compile "com.xebialabs.deployit:engine-api:$apiVersion"
   compile "com.xebialabs.deployit:appserver-api:$apiVersion"
-  compile 'com.esotericsoftware.yamlbeans:yamlbeans:1.09'
+  compile 'com.esotericsoftware.yamlbeans:yamlbeans:1.11'
   compile 'com.google.guava:guava:18.0'
   compile "junit:junit:4.11"
-  distBundle 'com.esotericsoftware.yamlbeans:yamlbeans:1.09'
+  compile 'com.xebialabs.overthere:overtherepy:0.0.3'
+  distBundle 'com.esotericsoftware.yamlbeans:yamlbeans:1.11'
+  distBundle('com.xebialabs.overthere:overtherepy:0.0.3') {
+    exclude module: 'jython'
+    exclude module: 'overthere'
+  }
 }
 
 license {

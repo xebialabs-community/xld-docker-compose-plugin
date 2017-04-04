@@ -9,14 +9,24 @@
 <!--
     Note: If you modify this file, you must restart the XL Deploy server.
 -->
-<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic"
+<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd"
+           xmlns="http://www.xebialabs.com/deployit/synthetic"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 
-    <type type="docker.ComposedContainers" extends="udm.BaseDeployedArtifact" deployable-type="docker.ComposeFile" container-type="docker.Engine">
+    <type-modification type="docker.Engine">
+        <property name="host" required="false" kind="ci" referenced-type="overthere.Host" category="Docker Compose"
+                  description="Host from which the docker-compose will be run"/>
+        <property name="dockerComposePath" required="false" category="Docker Compose"
+                  description="Path to docker-compose bin"/>
+    </type-modification>
+
+    <type type="docker.ComposedContainers" extends="udm.BaseDeployedArtifact" deployable-type="docker.ComposeFile"
+          container-type="docker.Engine">
         <generate-deployable type="docker.ComposeFile" extends="udm.BaseDeployableFileArtifact"/>
         <property name="forceRecreate" kind="boolean" default="false" required="false" category="Advanced"/>
-        <property name="dumpLogsAfterStartup" kind="boolean" default="false" description="Generate a step to dump log after start up the container"
+        <property name="dumpLogsAfterStartup" kind="boolean" default="true"
+                  description="Generate a step to dump log after start up the container"
                   category="Advanced"/>
     </type>
 
@@ -24,7 +34,5 @@
         <property name="scanPlaceholders" default="true" kind="boolean"/>
         <property name="textFileNamesRegex" default=".+\.(yml | yaml)" hidden="true"/>
     </type-modification>
-
-
 
 </synthetic>

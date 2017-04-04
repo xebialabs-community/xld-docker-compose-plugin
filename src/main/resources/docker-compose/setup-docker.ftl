@@ -5,6 +5,7 @@
     FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
 
 -->
-<#include "/docker-compose/setup-docker.ftl">
-
-docker-compose --file ${composed.file.path} --project-name ${application} stop
+export DOCKER_TLS_VERIFY="${target.enableTLS?string('1', '0')}"
+export DOCKER_HOST="${target.dockerHost}"
+export DOCKER_CERT_PATH="X"
+export DOCKER_MACHINE_NAME=${target.name}

@@ -178,6 +178,16 @@ public class DockerComposeDescriptorTest {
 
     }
 
+
+    public void testProcessTestAPP1() throws Exception {
+
+        final File yamlFile = new File("src/test/resources/app1.yml");
+        assertTrue(yamlFile.exists());
+        DockerComposeDescriptor descriptor = new DockerComposeDescriptor(yamlFile);
+        final List<DockerConfigurationItem> images = descriptor.getItems();
+        assertEquals(14, images.size());
+    }
+
     private DockerConfigurationItem getImageByName(List<DockerConfigurationItem> images, String imageName) {
         for (DockerConfigurationItem image : images) {
             if (image.getName().equals(imageName))

@@ -1,0 +1,93 @@
+#
+# THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS
+# FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
+#
+
+version: '2'
+services:
+   bonita:
+     image: mycompany/rad/bonita
+     volumes:
+        - /apps/logs/bonita:/apps/logs/bonita
+     ports:
+        - "8080:8080"
+     restart: always
+     environment:
+        DB_ADMIN_USER: BONITA_DB_ADMIN_USER
+        DB_ADMIN_PASS: {{BONITA_DB_ADMIN_PASS}}
+        PLATFORM_PASSWORD: {{BONITA_PLATFORM_PASS}}
+        PLATFORM_LOGIN: {{BONITA_PLATFORM_LOGIN}}
+        HTTP_API: 'true'
+        DB_VENDOR: mysql
+        DB_HOST: {{BONITA_DB_HOST}}
+        DB_PORT: {{BONITA_DB_PORT}}
+        DB_NAME: {{BONITA_DB_NAME}}
+        DB_USER: {{BONITA_DB_USER}}
+        DB_PASS: {{BONITA_DB_PASS}}
+        BIZ_DB_NAME: {{BONITA_BIZ_DB_NAME}}
+        BIZ_DB_USER: {{BONITA_BIZ_DB_USER}}
+        BIZ_DB_PASS: {{BONITA_BIZ_DB_PASS}}
+   back:
+     image: mycompany/rad/back
+     volumes:
+        - /apps/logs/jboss/back:/opt/jboss/wildfly/standalone/log
+     links:
+       - bonita
+     restart: always
+     environment:
+       MONGODB_USER: {{BACK_MGO_DB_USER}}
+       MONGODB_PASS: {{BACK_MGO_DB_PASS}}
+       MONGODB_DATABASE: {{BACK_MGO_DB_NAME}}
+       rad.data.mongodb: mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?maxPoolSize=10
+       spring.data.mongodb.uri: mongodb://mongo1:27017,mongo2:27017,mongo3:27017/rad_platform_config?maxPoolSize=10
+     extra_hosts:
+       - "mongo1:{{BACK_MGO1_XTRA_HOSTS_IP}}"
+       - "mongo2:{{BACK_MGO2_XTRA_HOSTS_IP}}"
+       - "mongo3:{{BACK_MGO3_XTRA_HOSTS_IP}}"
+     healthcheck:
+       test: ["CMD", "curl", "-f", "http://localhost:8080/mycompany-rad-back/api/healthcheck"]
+       interval: 30s
+       timeout: 10s
+       retries: 5
+   usermgmt:
+     image: mycompany/rad/usermgmt
+     volumes:
+        - /apps/logs/jboss/usermgmt:/opt/jboss/wildfly/standalone/log
+     restart: always
+     environment:
+       MONGODB_USER: {{USRMGMT_MGO_DB_USER}}
+       MONGODB_PASS: {{USRMGMT_MGO_DB_PASS}}
+       MONGODB_DATABASE: {{USRMGMT_MGO_DB_NAME}}
+       rad.data.mongodb: mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?maxPoolSize=10
+       spring.data.mongodb.uri: mongodb://mongo1:27017,mongo2:27017,mongo3:27017/rad_platform_config?maxPoolSize=10
+     extra_hosts:
+       - "mongo1:{{USRMGMT_MGO1_XTRA_HOSTS_IP}}"
+       - "mongo2:{{USRMGMT_MGO2_XTRA_HOSTS_IP}}"
+       - "mongo3:{{USRMGMT_MGO3_XTRA_HOSTS_IP}}"
+   front:
+     image: mycompany/rad/front
+     volumes:
+#    -- XXX log volume --
+       - /apps/logs/httpd:/var/log/httpd
+#    -- XXX kerberos conf files volume --
+       - ./_XXX/rad/front/etc/krb5.conf.d/:/etc/krb5.conf.d:ro
+     environment:
+       KRB5_CONFIG: {{FRONT_KRB5_CONFIG}}
+       KRB5_CLIENT_KTNAME: {{FRONT_KRB5_CLIENT_KTNAME}}
+       XXX_KRB5_AUTH_REALMS: {{FRONT_XXX_KRB5_AUTH_REALMS}}
+       XXX_KRB5_AUTH_NAME: {{FRONT_XXX_KRB5_AUTH_NAME}}
+       XXX_KRB5_MTHD_NEGO: 'on'
+       XXX_KRB5_MTHDK5_PWD: 'on'
+       XXX_KRB5_TKT_LIFETIME: {{FRONT_XXX_KRB5_TKT_LIFETIME}}
+       XXX_KRB5_AUTOLOGIN: 'true'
+       XXX_KRB5_FWD: 'true'
+       XXX_KRB5_FWDABLE: 'true'
+       XXX_KRB5_ENCRYPT: 'true'
+     links:
+         - back
+         - usermgmt
+         - bonita
+     ports:
+         - "443:443"
+     restart: always
