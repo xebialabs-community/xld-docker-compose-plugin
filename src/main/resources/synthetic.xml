@@ -25,6 +25,9 @@
           container-type="docker.Engine">
         <generate-deployable type="docker.ComposeFile" extends="udm.BaseDeployableFileArtifact"/>
         <property name="forceRecreate" kind="boolean" default="false" required="false" category="Advanced"/>
+        <property name="executeOnNoop" kind="boolean" default="false"
+                  description="Execute the docker-compose up on NOOP operation"
+                  category="Advanced"/>
         <property name="dumpLogsAfterStartup" kind="boolean" default="true"
                   description="Generate a step to dump log after start up the container"
                   category="Advanced"/>
