@@ -21,7 +21,7 @@
                     (deployed.name,deployed.container.name)
                 </description>
                 <order>5</order>
-                <script>docker-compose/pull.py</script>
+                <script>docker_compose/pull.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
@@ -32,7 +32,7 @@
                     (deployed.name,deployed.container.name)
                 </description>
                 <order>70</order>
-                <script>docker-compose/up.py</script>
+                <script>docker_compose/up.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
@@ -43,7 +43,7 @@
                     (deployed.name,deployed.container.name)
                 </description>
                 <order>80</order>
-                <script>docker-compose/ps.py</script>
+                <script>docker_compose/ps.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
@@ -64,7 +64,7 @@
                     (deployed.name,deployed.container.name)
                 </description>
                 <order>65</order>
-                <script>docker-compose/pull.py</script>
+                <script>docker_compose/pull.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
@@ -75,7 +75,7 @@
                     (deployed.name,deployed.container.name)
                 </description>
                 <order>70</order>
-                <script>docker-compose/up.py</script>
+                <script>docker_compose/up.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
@@ -86,7 +86,7 @@
                     (deployed.name,deployed.container.name)
                 </description>
                 <order>80</order>
-                <script>docker-compose/ps.py</script>
+                <script>docker_compose/ps.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
@@ -109,7 +109,7 @@
                     previousDeployed.container.name)
                 </description>
                 <order>20</order>
-                <script>docker-compose/stop.py</script>
+                <script>docker_compose/stop.py</script>
                 <jython-context>
                     <composed expression="true">previousDeployed</composed>
                     <application expression="true">previousDeployedApplication.name</application>
@@ -130,7 +130,7 @@
                     (previousDeployed.name, previousDeployed.container.name)
                 </description>
                 <order>25</order>
-                <script>docker-compose/rm.py</script>
+                <script>docker_compose/rm.py</script>
                 <jython-context>
                     <composed expression="true">previousDeployed</composed>
                     <application expression="true">previousDeployedApplication.name</application>
@@ -156,7 +156,7 @@
             <jython>
                 <description expression="true">"View output from containers '%s'" % (deployed.name)</description>
                 <order>82</order>
-                <script>docker-compose/logs.py</script>
+                <script>docker_compose/logs.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
@@ -180,7 +180,7 @@
             <jython>
                 <description expression="true">"View output from containers '%s'" % (deployed.name)</description>
                 <order>82</order>
-                <script>docker-compose/logs.py</script>
+                <script>docker_compose/logs.py</script>
                 <jython-context>
                     <composed expression="true">deployed</composed>
                     <application expression="true">deployedApplication.name</application>
