@@ -6,7 +6,7 @@ deploy:
   provider: releases
   api_key:
     secure: aOidpDHM3+rekTMu702gLYcLH1fiKIIwawZytYhwBhNqZREsuT0PjEGky/8RAWVFv6iuSwNwKJnAqAThshRT5M7nFE0LVm0h8ZhWPIKWG3/k7U21N14U6jkChyAVufHzqneYhlmk4QeVAPRMZ11uGUpDEIGymlCneq+LWhZiNEqZusUJ2ItyPp2OGiES8ux9rS7Ui/ZvYTlmg9uCCKi1P9HpJto61s1v2B58mMGK+OPl2uvaKXsCznIh4ltZhs07OCMVqfGJoNBEfgcKyfZsmpTU+ek38gZkl1nPOxzCuyszndwL5Z7QcVaidvrdO7j+DeKcOaYiCvgb4uaykKktQF/EuuShjvhHIjDpoRZb7wat2UfwYZTsddyFGa6tNOT2OzF+DH6uuKgi6zblYm7tl1l6XuMD5sl6y+n8Lfvpswy49nJGYTN4zx2G7TSKnWbx1qagEtwJux5UDjett/9wQZt6y2H63BopdHNDWIB/ur4RjmkVBJKdnUgp6SjhzusrWgIzMh6kRq3Slu4xBcSc91Vkb/XU8R+2z6dFTiRFCpaxQ7qHJYDUZKOslaWeRCRLyXUjSojbIUapvRkfGzSbfw+7OSsCo2VkewH63ca12nr4W8D1O/08KCbQaIpDadcP/O+Od3cGQMxp3UKyP0gRtCcsGllzf8J6kdzWpba+viU=
-  file: build/distributions//xld-docker-compose-plugin-6.2.0.xldp
+  file: build/distributions//xld-docker-compose-plugin-6.2.1-SNAPSHOT.xldp
   skip_cleanup: true
   on:
     repo: xebialabs-community/xld-docker-compose-plugin
